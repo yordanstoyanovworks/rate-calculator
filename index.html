@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #F5F4F0;
+            --bg: #FCFCFC;
             --surface: #FFFFFF;
             --border: #E2E1DC;
             --border-focus: #1A1A1A;
@@ -44,7 +44,7 @@
         .risk-btn:hover { border-color: var(--text); color: var(--text); }
         .risk-btn.active { background: var(--text); border-color: var(--text); color: #fff; }
         .risk-btn.active span { color: rgba(255,255,255,0.6); }
-        .pill-group { display: inline-flex; background: #F0EFEB; border-radius: var(--r); padding: 2px; }
+        .pill-group { display: inline-flex; background: #F0F0F0; border-radius: var(--r); padding: 2px; }
         .pill-btn { padding: 6px 16px; border: none; background: none; font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--text-3); cursor: pointer; border-radius: 4px; transition: all 0.12s; }
         .pill-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
         select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--r); font-family: var(--sans); font-size: 13px; color: var(--text); background: var(--surface); cursor: pointer; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%239B9B93' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
@@ -53,7 +53,7 @@
         .days-toggle:hover { color: var(--text); text-decoration-color: var(--text); }
         .days-toggle svg { width: 10px; height: 10px; transition: transform 0.15s; }
         .days-toggle.open svg { transform: rotate(90deg); }
-        .days-helper { display: none; margin-top: 10px; padding: 12px; background: #FAFAF7; border: 1px solid var(--border); border-radius: var(--r); }
+        .days-helper { display: none; margin-top: 10px; padding: 12px; background: #F7F7F7; border: 1px solid var(--border); border-radius: var(--r); }
         .days-helper.open { display: block; }
         .days-helper .field { margin-bottom: 12px; }
         .days-helper .field:last-child { margin-bottom: 0; }
@@ -66,7 +66,7 @@
         .s-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 20px; }
         .s-row .l { font-size: 13px; color: var(--text-2); }
         .s-row .v { font-family: var(--mono); font-size: 14px; font-weight: 500; }
-        .s-row.big { padding: 10px 16px; margin: 4px 8px; background: #F7F6F3; border-radius: var(--r); }
+        .s-row.big { padding: 10px 16px; margin: 4px 8px; background: #F4F4F4; border-radius: var(--r); }
         .s-row.big .v { font-size: 20px; font-weight: 700; }
         .s-row.muted .l, .s-row.muted .v { font-size: 12px; color: var(--text-3); }
         .s-divider { height: 1px; background: var(--border); margin: 2px 20px; }
@@ -74,7 +74,7 @@
         .tranche-row .l { font-size: 12px; color: var(--text-3); }
         .tranche-row .v { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--text-2); }
         .tranche-label { font-size: 11px; color: var(--text-3); padding: 8px 20px 2px; font-weight: 500; }
-        .copy-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; border: 1px solid var(--border); border-top: none; background: #FAFAF7; border-radius: 0 0 8px 8px; font-family: var(--sans); font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all 0.12s; }
+        .copy-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; border: 1px solid var(--border); border-top: none; background: #F7F7F7; border-radius: 0 0 8px 8px; font-family: var(--sans); font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all 0.12s; }
         .copy-btn:hover { color: var(--text); background: var(--border); }
         .copy-btn.ok { color: #16A34A; background: #F0FDF4; }
         .copy-btn svg { width: 13px; height: 13px; }
