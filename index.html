@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Quote</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F5F4F0;
+            --surface: #FFFFFF;
+            --border: #E2E1DC;
+            --border-focus: #1A1A1A;
+            --text: #1A1A1A;
+            --text-2: #6B6B63;
+            --text-3: #9B9B93;
+            --r: 6px;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'DM Sans', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+        .app { max-width: 960px; margin: 0 auto; padding: 32px 20px 100px; }
+        h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 24px; }
+        .layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; }
+        @media (max-width: 720px) { .layout { grid-template-columns: 1fr; } .summary { position: static !important; } }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+        .field { margin-bottom: 20px; }
+        .field:last-child { margin-bottom: 0; }
+        .field-label { font-size: 13px; font-weight: 500; margin-bottom: 6px; display: block; }
+        .field-hint { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+        input[type="number"] { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--r); font-family: var(--mono); font-size: 14px; color: var(--text); background: var(--surface); }
+        input[type="number"]:focus { outline: none; border-color: var(--border-focus); }
+
+        .slider-row { display: flex; align-items: center; gap: 10px; }
+        .slider-row .track { flex: 1; }
+        input[type="range"] { width: 100%; height: 4px; border-radius: 2px; background: var(--border); outline: none; -webkit-appearance: none; cursor: pointer; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--text); border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.15); cursor: pointer; }
+        input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--text); border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.15); cursor: pointer; }
+        .slider-value { font-family: var(--mono); font-size: 13px; font-weight: 600; min-width: 56px; text-align: right; }
+        .risk-group { display: flex; gap: 6px; }
+        .risk-btn { flex: 1; padding: 8px 6px; border: 1px solid var(--border); background: var(--surface); border-radius: var(--r); font-family: var(--sans); font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all 0.12s; text-align: center; line-height: 1.3; }
+        .risk-btn span { display: block; font-family: var(--mono); font-size: 10px; color: var(--text-3); margin-top: 1px; }
+        .risk-btn:hover { border-color: var(--text); color: var(--text); }
+        .risk-btn.active { background: var(--text); border-color: var(--text); color: #fff; }
+        .risk-btn.active span { color: rgba(255,255,255,0.6); }
+        .pill-group { display: inline-flex; background: #F0EFEB; border-radius: var(--r); padding: 2px; }
+        .pill-btn { padding: 6px 16px; border: none; background: none; font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--text-3); cursor: pointer; border-radius: 4px; transition: all 0.12s; }
+        .pill-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+        select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--r); font-family: var(--sans); font-size: 13px; color: var(--text); background: var(--surface); cursor: pointer; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%239B9B93' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+        select:focus { outline: none; border-color: var(--border-focus); }
+        .days-toggle { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-2); cursor: pointer; border: none; background: none; font-family: var(--sans); padding: 0; margin-top: 6px; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 2px; }
+        .days-toggle:hover { color: var(--text); text-decoration-color: var(--text); }
+        .days-toggle svg { width: 10px; height: 10px; transition: transform 0.15s; }
+        .days-toggle.open svg { transform: rotate(90deg); }
+        .days-helper { display: none; margin-top: 10px; padding: 12px; background: #FAFAF7; border: 1px solid var(--border); border-radius: var(--r); }
+        .days-helper.open { display: block; }
+        .days-helper .field { margin-bottom: 12px; }
+        .days-helper .field:last-child { margin-bottom: 0; }
+        .days-helper .field-label { font-size: 12px; color: var(--text-2); }
+        .days-calc { font-family: var(--mono); font-size: 11px; color: var(--text-3); margin-top: 6px; }
+        .summary { position: sticky; top: 20px; }
+        .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        .summary-header { padding: 14px 20px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); }
+        .summary-body { padding: 4px 0; }
+        .s-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 20px; }
+        .s-row .l { font-size: 13px; color: var(--text-2); }
+        .s-row .v { font-family: var(--mono); font-size: 14px; font-weight: 500; }
+        .s-row.big { padding: 10px 16px; margin: 4px 8px; background: #F7F6F3; border-radius: var(--r); }
+        .s-row.big .v { font-size: 20px; font-weight: 700; }
+        .s-row.muted .l, .s-row.muted .v { font-size: 12px; color: var(--text-3); }
+        .s-divider { height: 1px; background: var(--border); margin: 2px 20px; }
+        .tranche-row { display: flex; justify-content: space-between; padding: 5px 20px; }
+        .tranche-row .l { font-size: 12px; color: var(--text-3); }
+        .tranche-row .v { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--text-2); }
+        .tranche-label { font-size: 11px; color: var(--text-3); padding: 8px 20px 2px; font-weight: 500; }
+        .copy-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; border: 1px solid var(--border); border-top: none; background: #FAFAF7; border-radius: 0 0 8px 8px; font-family: var(--sans); font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all 0.12s; }
+        .copy-btn:hover { color: var(--text); background: var(--border); }
+        .copy-btn.ok { color: #16A34A; background: #F0FDF4; }
+        .copy-btn svg { width: 13px; height: 13px; }
+    </style>
+</head>
+<body>
+<div class="app">
+    <h1>Project Quote</h1>
+    <div class="layout">
+        <div class="inputs">
+            <div class="card">
+                <div class="field">
+                    <label class="field-label">Hourly rate</label>
+                    <div class="slider-row">
+                        <div class="track"><input type="range" id="rate" min="30" max="100" value="50" step="1"></div>
+                        <span class="slider-value" id="rateVal">€50</span>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="field-label" for="hours">Estimated hours</label>
+                    <input type="number" id="hours" value="40" min="1" step="1">
+                    <button class="days-toggle" id="daysToggle">
+                        <svg viewBox="0 0 10 10" fill="none"><path d="M3.5 2L6.5 5L3.5 8" stroke="currentColor" stroke-width="1.2"/></svg>
+                        Estimate from days
+                    </button>
+                    <div class="days-helper" id="daysHelper">
+                        <div class="field">
+                            <label class="field-label" for="days">Days</label>
+                            <input type="number" id="days" value="7" min="1" step="1">
+                        </div>
+                        <div class="field">
+                            <label class="field-label">Hours / day</label>
+                            <div class="slider-row">
+                                <div class="track"><input type="range" id="hpd" min="4" max="10" value="6" step="1"></div>
+                                <span class="slider-value" id="hpdVal">6h</span>
+                            </div>
+                        </div>
+                        <div class="days-calc" id="daysCalc">7 × 6h = 42 hours</div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="field-label">Risk level</label>
+                    <div class="risk-group">
+                        <button class="risk-btn" data-risk="clean">Clean<span>×1.0 +10%</span></button>
+                        <button class="risk-btn active" data-risk="normal">Normal<span>×1.2 +20%</span></button>
+                        <button class="risk-btn" data-risk="risky">Risky<span>×1.4 +30%</span></button>
+                        <button class="risk-btn" data-risk="chaotic">Chaotic<span>×1.6 +35%</span></button>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="field-label">VAT</label>
+                    <div class="pill-group">
+                        <button class="pill-btn active" data-vat="0">0%</button>
+                        <button class="pill-btn" data-vat="20">20%</button>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="field-label" for="schedule">Payment schedule</label>
+                    <select id="schedule">
+                        <option value="50/50">50 / 50</option>
+                        <option value="33/33/33">33 / 33 / 33</option>
+                        <option value="25/25/25/25">25 / 25 / 25 / 25</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="summary">
+            <div class="summary-card">
+                <div class="summary-header">Summary</div>
+                <div class="summary-body">
+                    <div class="s-row"><span class="l">Net fee</span><span class="v" id="outNet">€0</span></div>
+                    <div class="s-row" id="vatRow" style="display:none"><span class="l">VAT (20%)</span><span class="v" id="outVat">€0</span></div>
+                    <div class="s-divider"></div>
+                    <div class="s-row big"><span class="l">Total</span><span class="v" id="outTotal">€0</span></div>
+                    <div class="s-divider"></div>
+                    <div class="tranche-label">Payment schedule</div>
+                    <div id="tranches"></div>
+                    <div class="s-divider"></div>
+                    <div class="s-row muted"><span class="l">Effective hourly</span><span class="v" id="outEff">€0/h</span></div>
+                </div>
+            </div>
+            <button class="copy-btn" id="copyBtn">
+                <svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 10.5V3.5C3 2.67 3.67 2 4.5 2H9.5" stroke="currentColor" stroke-width="1.2"/></svg>
+                Copy breakdown
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+const KEY='pq_v2', $=id=>document.getElementById(id);
+const risks={clean:{mult:1.0,cont:10},normal:{mult:1.2,cont:20},risky:{mult:1.4,cont:30},chaotic:{mult:1.6,cont:35}};
+const schedules={'50/50':[50,50],'33/33/33':[34,33,33],'25/25/25/25':[25,25,25,25]};
+
+let s={rate:50,hours:40,days:7,hpd:6,daysOpen:false,risk:'normal',vat:0,schedule:'50/50'};
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d)s={...s,...d}}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}}
+
+const el={rate:$('rate'),rateVal:$('rateVal'),hours:$('hours'),days:$('days'),hpd:$('hpd'),hpdVal:$('hpdVal'),daysCalc:$('daysCalc'),schedule:$('schedule'),outNet:$('outNet'),outVat:$('outVat'),outTotal:$('outTotal'),outEff:$('outEff'),vatRow:$('vatRow'),tranches:$('tranches')};
+
+el.rate.addEventListener('input',()=>{s.rate=parseInt(el.rate.value);el.rateVal.textContent='€'+s.rate;calc();save()});
+el.hours.addEventListener('input',()=>{s.hours=parseFloat(el.hours.value)||0;calc();save()});
+
+$('daysToggle').addEventListener('click',()=>{
+    s.daysOpen=!s.daysOpen;
+    $('daysToggle').classList.toggle('open',s.daysOpen);
+    $('daysHelper').classList.toggle('open',s.daysOpen);
+    save();
+});
+
+function syncDays(){
+    const t=(parseFloat(el.days.value)||0)*(parseInt(el.hpd.value)||0);
+    el.daysCalc.textContent=el.days.value+' × '+el.hpd.value+'h = '+t+' hours';
+    el.hours.value=t;s.hours=t;s.days=parseFloat(el.days.value)||0;s.hpd=parseInt(el.hpd.value)||6;
+    el.hpdVal.textContent=s.hpd+'h';calc();save();
+}
+el.days.addEventListener('input',syncDays);
+el.hpd.addEventListener('input',syncDays);
+
+document.querySelectorAll('.risk-btn').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.risk-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');s.risk=b.dataset.risk;calc();save();
+}));
+
+document.querySelectorAll('[data-vat]').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('[data-vat]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');s.vat=parseInt(b.dataset.vat);calc();save();
+}));
+
+el.schedule.addEventListener('change',()=>{s.schedule=el.schedule.value;calc();save()});
+
+function calc(){
+    const r=risks[s.risk]||risks.normal;
+    const base=s.hours*s.rate,adj=base*r.mult,net=adj*(1+r.cont/100);
+    const vatAmt=net*(s.vat/100),total=net+vatAmt,eff=s.hours>0?net/s.hours:0;
+    el.outNet.textContent=fmt(net);el.outVat.textContent=fmt(vatAmt);
+    el.outTotal.textContent=fmt(total);el.outEff.textContent=fmt(eff)+'/h';
+    el.vatRow.style.display=s.vat>0?'flex':'none';
+    const parts=schedules[s.schedule]||[50,50];
+    let h='';
+    parts.forEach((pct,i)=>{
+        const amt=total*pct/100;
+        const nm=parts.length===2?(i===0?'Deposit':'On delivery'):(i===0?'Deposit':i===parts.length-1?'Final':'Milestone '+(i+1));
+        h+=`<div class="tranche-row"><span class="l">${nm} (${pct}%)</span><span class="v">${fmt(amt)}</span></div>`;
+    });
+    el.tranches.innerHTML=h;
+}
+
+function fmt(n){return '€'+Math.round(n).toLocaleString('de-DE')}
+function fmtDec(n){return '€'+n.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+$('copyBtn').addEventListener('click',()=>{
+    const r=risks[s.risk]||risks.normal;
+    const base=s.hours*s.rate,adj=base*r.mult,net=adj*(1+r.cont/100);
+    const vatAmt=net*(s.vat/100),total=net+vatAmt;
+    const parts=schedules[s.schedule]||[50,50];
+    const L=['PROJECT QUOTE','─────────────────────────','',`Estimated hours:  ${s.hours}h`,`Hourly rate:      €${s.rate}`,`Risk level:       ${s.risk} (×${r.mult}, +${r.cont}%)`,'','─────────────────────────',`Net fee (ex VAT): ${fmtDec(net)}`];
+    if(s.vat>0)L.push(`VAT (${s.vat}%):        ${fmtDec(vatAmt)}`);
+    L.push(`Total invoice:    ${fmtDec(total)}`,'─────────────────────────','','Payment schedule:');
+    parts.forEach((pct,i)=>{
+        const amt=total*pct/100;
+        const nm=parts.length===2?(i===0?'Deposit':'On delivery'):(i===0?'Deposit':i===parts.length-1?'Final':'Milestone '+(i+1));
+        L.push(`  ${nm} (${pct}%): ${fmtDec(amt)}`);
+    });
+    navigator.clipboard.writeText(L.join('\n')).then(()=>{
+        const b=$('copyBtn');b.classList.add('ok');
+        b.innerHTML='<svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="currentColor" stroke-width="1.5"/></svg> Copied';
+        setTimeout(()=>{b.classList.remove('ok');b.innerHTML='<svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 10.5V3.5C3 2.67 3.67 2 4.5 2H9.5" stroke="currentColor" stroke-width="1.2"/></svg> Copy breakdown'},1400);
+    });
+});
+
+load();
+el.rate.value=s.rate;el.rateVal.textContent='€'+s.rate;
+el.hours.value=s.hours;el.days.value=s.days;el.hpd.value=s.hpd;el.hpdVal.textContent=s.hpd+'h';
+el.schedule.value=s.schedule;
+if(s.daysOpen){$('daysToggle').classList.add('open');$('daysHelper').classList.add('open')}
+document.querySelectorAll('.risk-btn').forEach(b=>b.classList.toggle('active',b.dataset.risk===s.risk));
+document.querySelectorAll('[data-vat]').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.vat)===s.vat));
+el.daysCalc.textContent=s.days+' × '+s.hpd+'h = '+(s.days*s.hpd)+' hours';
+calc();
+</script>
+</body>
+</html>
