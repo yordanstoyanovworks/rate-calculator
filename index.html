@@ -78,6 +78,34 @@
         .copy-btn:hover { color: var(--text); background: var(--border); }
         .copy-btn.ok { color: #16A34A; background: #F0FDF4; }
         .copy-btn svg { width: 13px; height: 13px; }
+
+        /* Owner section */
+        .owner-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-top: 8px; }
+        .owner-toggle { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; cursor: pointer; user-select: none; gap: 12px; }
+        .owner-toggle:hover .owner-chevron { color: var(--text); }
+        .owner-toggle-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .owner-toggle-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); }
+        .owner-preview { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .owner-chevron { width: 16px; height: 16px; color: var(--text-3); transition: transform 0.15s; flex-shrink: 0; }
+        .owner-card.open .owner-chevron { transform: rotate(180deg); }
+        .owner-body { display: none; border-top: 1px solid var(--border); padding: 14px 16px; }
+        .owner-card.open .owner-body { display: block; }
+        .tax-field { margin-bottom: 14px; }
+        .tax-field:last-of-type { margin-bottom: 0; }
+        .tax-check-row { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+        .tax-check-row input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: var(--text); flex-shrink: 0; }
+        .tax-check-row label { font-size: 12px; font-weight: 500; cursor: pointer; }
+        .tax-pct-row { display: flex; align-items: center; gap: 8px; }
+        .tax-pct-row input[type="number"] { width: 72px; padding: 5px 8px; font-size: 13px; }
+        .tax-pct-row .pct-label { font-size: 12px; color: var(--text-2); }
+        .tax-hint { font-size: 11px; color: var(--text-3); margin-top: 4px; line-height: 1.4; }
+        .owner-result { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
+        .o-row { display: flex; justify-content: space-between; align-items: baseline; padding: 2px 0; }
+        .o-row .l { font-size: 12px; color: var(--text-2); }
+        .o-row .v { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+        .o-row.big .l { font-size: 13px; color: var(--text); font-weight: 500; }
+        .o-row.big .v { font-size: 16px; font-weight: 700; }
+        .o-row.muted .l, .o-row.muted .v { font-size: 11px; color: var(--text-3); }
     </style>
 </head>
 <body>
@@ -160,6 +188,52 @@
                 <svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 10.5V3.5C3 2.67 3.67 2 4.5 2H9.5" stroke="currentColor" stroke-width="1.2"/></svg>
                 Copy breakdown
             </button>
+
+            <!-- Net to owner accordion -->
+            <div class="owner-card" id="ownerCard">
+                <div class="owner-toggle" id="ownerToggle">
+                    <div class="owner-toggle-left">
+                        <span class="owner-toggle-label">Net to owner (est.)</span>
+                        <span class="owner-preview" id="ownerPreview">—</span>
+                    </div>
+                    <svg class="owner-chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.5"/></svg>
+                </div>
+                <div class="owner-body">
+                    <div class="tax-field">
+                        <div class="tax-check-row">
+                            <input type="checkbox" id="corpTaxEnabled">
+                            <label for="corpTaxEnabled">Apply corporate tax</label>
+                        </div>
+                        <div class="tax-pct-row">
+                            <input type="number" id="corpTaxPct" min="0" max="100" step="0.1">
+                            <span class="pct-label">%</span>
+                        </div>
+                        <div class="tax-hint">Applied first on company profit (ex VAT).</div>
+                    </div>
+                    <div class="tax-field">
+                        <div class="tax-check-row">
+                            <input type="checkbox" id="divTaxEnabled">
+                            <label for="divTaxEnabled">Apply dividend tax (on withdrawal)</label>
+                        </div>
+                        <div class="tax-pct-row">
+                            <input type="number" id="divTaxPct" min="0" max="100" step="0.1">
+                            <span class="pct-label">%</span>
+                        </div>
+                        <div class="tax-hint">Applied only when withdrawing profit, calculated after corporate tax.</div>
+                    </div>
+                    <div class="owner-result">
+                        <div class="o-row">
+                            <span class="l">After corp. tax</span><span class="v" id="ownerAfterCorp">—</span>
+                        </div>
+                        <div class="o-row big">
+                            <span class="l">Clean to owner</span><span class="v" id="ownerClean">—</span>
+                        </div>
+                        <div class="o-row muted">
+                            <span class="l">Clean hourly</span><span class="v" id="ownerHourly">—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -168,7 +242,8 @@ const KEY='pq_v2', $=id=>document.getElementById(id);
 const risks={clean:{mult:1.0,cont:10},normal:{mult:1.2,cont:20},risky:{mult:1.4,cont:30},chaotic:{mult:1.6,cont:35}};
 const schedules={'50/50':[50,50],'33/33/33':[34,33,33],'25/25/25/25':[25,25,25,25]};
 
-let s={rate:50,hours:40,days:7,hpd:6,daysOpen:false,risk:'normal',vat:0,schedule:'50/50'};
+let s={rate:50,hours:40,days:7,hpd:6,daysOpen:false,risk:'normal',vat:0,schedule:'50/50',
+       ownerOpen:false,corpTaxEnabled:true,corpTaxPct:10,divTaxEnabled:true,divTaxPct:5};
 function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d)s={...s,...d}}catch(e){}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}}
 
@@ -205,6 +280,29 @@ document.querySelectorAll('[data-vat]').forEach(b=>b.addEventListener('click',()
 
 el.schedule.addEventListener('change',()=>{s.schedule=el.schedule.value;calc();save()});
 
+$('ownerToggle').addEventListener('click',()=>{
+    s.ownerOpen=!s.ownerOpen;
+    $('ownerCard').classList.toggle('open',s.ownerOpen);
+    save();
+});
+
+$('corpTaxEnabled').addEventListener('change',e=>{s.corpTaxEnabled=e.target.checked;calc();save()});
+$('corpTaxPct').addEventListener('input',e=>{s.corpTaxPct=parseFloat(e.target.value)||0;calc();save()});
+$('divTaxEnabled').addEventListener('change',e=>{s.divTaxEnabled=e.target.checked;calc();save()});
+$('divTaxPct').addEventListener('input',e=>{s.divTaxPct=parseFloat(e.target.value)||0;calc();save()});
+
+function calcOwner(net){
+    const corpTax=s.corpTaxEnabled?net*(s.corpTaxPct/100):0;
+    const afterCorp=Math.max(0,net-corpTax);
+    const divTax=s.divTaxEnabled?afterCorp*(s.divTaxPct/100):0;
+    const clean=Math.max(0,afterCorp-divTax);
+    const hourly=s.hours>0?clean/s.hours:null;
+    $('ownerPreview').textContent=fmt(clean);
+    $('ownerAfterCorp').textContent=fmt(afterCorp);
+    $('ownerClean').textContent=fmt(clean);
+    $('ownerHourly').textContent=hourly!==null?fmt(hourly)+'/h':'–';
+}
+
 function calc(){
     const r=risks[s.risk]||risks.normal;
     const base=s.hours*s.rate,adj=base*r.mult,net=adj*(1+r.cont/100);
@@ -220,6 +318,7 @@ function calc(){
         h+=`<div class="tranche-row"><span class="l">${nm} (${pct}%)</span><span class="v">${fmt(amt)}</span></div>`;
     });
     el.tranches.innerHTML=h;
+    calcOwner(net);
 }
 
 function fmt(n){return '€'+Math.round(n).toLocaleString('de-DE')}
@@ -250,6 +349,11 @@ el.rate.value=s.rate;el.rateVal.textContent='€'+s.rate;
 el.hours.value=s.hours;el.days.value=s.days;el.hpd.value=s.hpd;el.hpdVal.textContent=s.hpd+'h';
 el.schedule.value=s.schedule;
 if(s.daysOpen){$('daysToggle').classList.add('open');$('daysHelper').classList.add('open')}
+if(s.ownerOpen){$('ownerCard').classList.add('open')}
+$('corpTaxEnabled').checked=s.corpTaxEnabled;
+$('corpTaxPct').value=s.corpTaxPct;
+$('divTaxEnabled').checked=s.divTaxEnabled;
+$('divTaxPct').value=s.divTaxPct;
 document.querySelectorAll('.risk-btn').forEach(b=>b.classList.toggle('active',b.dataset.risk===s.risk));
 document.querySelectorAll('[data-vat]').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.vat)===s.vat));
 el.daysCalc.textContent=s.days+' × '+s.hpd+'h = '+(s.days*s.hpd)+' hours';
